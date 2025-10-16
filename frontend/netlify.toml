@@ -1,0 +1,96 @@
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
+---
+
+## 📁 Your Project Structure Should Look Like:
+```
+frontend/
+├── public/
+│   ├── _redirects          ← Add this file
+│   └── index.html
+├── src/
+│   ├── App.jsx
+│   └── ...
+├── package.json
+├── netlify.toml            ← Or add this file
+└── vite.config.js
+
+🚀 Redeploy on Netlify
+After adding the _redirects file:
+Method 1: Git Push (Recommended)
+bashgit add .
+git commit -m "Add redirects for SPA routing"
+git push
+Netlify will auto-deploy.
+Method 2: Manual Redeploy
+
+Go to Netlify dashboard
+Your site → Deploys
+Click "Trigger deploy" → "Clear cache and deploy site"
+
+
+🔍 Why This Happens
+React Router uses client-side routing. When you:
+
+Click links in your app → ✅ Works (JavaScript handles routing)
+Refresh page or enter URL directly → ❌ 404 (Server looks for actual file)
+
+The _redirects file tells Netlify:
+
+"For ANY route, serve index.html and let React Router handle it"
+
+
+✅ Verify It's Working
+
+Deploy with _redirects file
+Visit: https://your-app.netlify.app/expense-list
+Refresh the page
+Should work now! ✨
+
+
+🐛 Still Not Working?
+Check Build Settings on Netlify:
+
+Go to Site settings → Build & deploy
+Verify:
+
+Build command: npm run build
+Publish directory: dist (for Vite) or build (for Create React App)
+
+
+
+Check Your Routes:
+Make sure your React Router is set up correctly:
+javascript// App.jsx or main router file
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/expense-list" element={<ExpenseList />} />
+        <Route path="/add-expense" element={<AddExpense />} />
+        <Route path="/edit-expense" element={<EditExpense />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+📝 Complete Checklist:
+
+ Create public/_redirects with /* /index.html 200
+ Commit and push to GitHub
+ Wait for Netlify auto-deploy (or trigger manual deploy)
+ Test: Visit your site URL + any route
+ Test: Refresh the page on different routes
+ All routes should work now! ✅
+
+
+Let me know if you still see the 404 after this! 🚀RetryClaude does not have the ability to run the code it generates yet.Claude can make mistakes. Please double-check responses.
