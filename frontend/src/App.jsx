@@ -30,7 +30,7 @@ const App = () => {
   useEffect(() => {
     const isLoggedIn = async() => {
       try{
-        const res = await fetch('http://localhost:3000/isLoggedIn', {
+        const res = await fetch('https://personal-expense-tracker-psi.vercel.app/isLoggedIn', {
           method: 'GET',
           credentials: 'include'
         });
