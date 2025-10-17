@@ -17,7 +17,7 @@ export default function Sidebar({ currentPage, setCurrentPage, onLogout, sidebar
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch('http://localhost:3000/findUser', {
+        const res = await fetch('https://personal-expense-tracker-psi.vercel.app/findUser', {
           method: 'GET',
           credentials: 'include'
         });

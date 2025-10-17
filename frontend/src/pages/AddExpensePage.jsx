@@ -43,7 +43,7 @@ export default function AddExpensePage() {
 
     async function submitData() {
       try {
-        const res = await fetch('http://localhost:3000/api/expense/addExpense', {
+        const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/expense/addExpense', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

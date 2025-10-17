@@ -12,7 +12,7 @@ const App = () => {
 
   const handleLogout = async () => {
     try{
-      const res = await fetch('http://localhost:3000/api/user/logout', {
+      const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/user/logout', {
         method: 'POST',
         credentials: 'include'
       });

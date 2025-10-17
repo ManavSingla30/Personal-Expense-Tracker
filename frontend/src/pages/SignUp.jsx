@@ -90,7 +90,7 @@ const SignupPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:3000/api/user/signup', {
+      const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/user/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

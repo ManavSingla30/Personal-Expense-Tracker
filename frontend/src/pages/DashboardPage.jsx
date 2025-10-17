@@ -94,7 +94,7 @@ function DashboardPage() {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/expense/getExpenses', {
+        const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/expense/getExpenses', {
           method: 'GET',
           credentials: 'include'
         });

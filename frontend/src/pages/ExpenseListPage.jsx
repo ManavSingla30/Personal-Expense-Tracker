@@ -28,7 +28,7 @@ export default function ExpenseListPage() {
 
   useEffect(() => {
     async function fetchExpenses() {
-      const res = await fetch('http://localhost:3000/api/expense/getExpenses', {
+      const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/expense/getExpenses', {
         method: 'GET',
         credentials: 'include',
       });
@@ -80,7 +80,7 @@ export default function ExpenseListPage() {
 
   const handleDeleteConfirm = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/expense/deleteExpense/${selectedExpense._id}`, {
+      const res = await fetch(`https://personal-expense-tracker-psi.vercel.app/api/expense/deleteExpense/${selectedExpense._id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
