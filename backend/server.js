@@ -13,6 +13,27 @@ const expenseRoutes = require('./routes/expense.js');
 
 const app = express();
 
+// CORS - MUST BE FIRST
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  if (origin && (origin.includes('localhost') || origin.includes('vercel.app'))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,Cookie');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/backend", {
   useNewUrlParser: true,
