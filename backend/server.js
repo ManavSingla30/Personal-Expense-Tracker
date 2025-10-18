@@ -28,19 +28,31 @@ const allowedOrigins = [
   vercelUrl,
 ].filter(Boolean);
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
+// Allow Vercel preview deployments for the frontend project (e.g., walletxy-xxxxx-<team>.vercel.app)
+const allowedOriginRegexes = [
+  /^https:\/\/walletxy[a-z0-9-]*\.vercel\.app$/,
+];
+
+const corsOrigin = (origin, callback) => {
+  if (!origin) return callback(null, true); // allow non-browser or same-origin
+  const isExplicitlyAllowed = allowedOrigins.includes(origin);
+  const matchesPattern = allowedOriginRegexes.some((re) => re.test(origin));
+  if (isExplicitlyAllowed || matchesPattern) {
     return callback(null, true);
-  },
+  }
+  const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+  return callback(new Error(msg), false);
+};
+
+app.use(cors({
+  origin: corsOrigin,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// Ensure preflight requests succeed
+app.options('*', cors({ origin: corsOrigin, credentials: true }));
 
 app.use(cookieParser());
 app.use(express.json());
