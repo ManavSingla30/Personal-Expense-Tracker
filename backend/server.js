@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/backend", {
 .catch(err => console.error('MongoDB connection error:', err));
 
 const allowedOrigins = [
-  'https://walletxy.netlify.app',
+  'https://walletxy.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173'
 ];
