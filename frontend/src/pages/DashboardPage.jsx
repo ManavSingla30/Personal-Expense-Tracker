@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_URL } from '../config/api';
 import {
   PieChart, Pie, Cell, Legend,
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -94,7 +95,7 @@ function DashboardPage() {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/expense/getExpenses', {
+        const res = await fetch(`${API_URL}/api/expense/getExpenses`, {
           method: 'GET',
           credentials: 'include'
         });

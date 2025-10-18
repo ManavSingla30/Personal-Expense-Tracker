@@ -39,7 +39,7 @@ export default function EditExpensePage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`https://personal-expense-tracker-psi.vercel.app/api/expense/updateExpense/${expense._id}`, {
+      const res = await fetch(`${API_URL}/api/expense/updateExpense/${expense._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

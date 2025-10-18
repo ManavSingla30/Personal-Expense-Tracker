@@ -12,6 +12,8 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
   const onNavigateToSignup = () => {
     navigate('/signup');
   };
@@ -45,7 +47,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/user/login', {
+      const res = await fetch(`${API_URL}/api/user/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

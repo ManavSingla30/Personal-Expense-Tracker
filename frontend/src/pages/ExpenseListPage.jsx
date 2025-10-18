@@ -80,7 +80,7 @@ export default function ExpenseListPage() {
 
   const handleDeleteConfirm = async () => {
     try {
-      const res = await fetch(`https://personal-expense-tracker-psi.vercel.app/api/expense/deleteExpense/${selectedExpense._id}`, {
+      const res = await fetch(`${API_URL}/api/expense/deleteExpense/${selectedExpense._id}`, {
         method: 'DELETE',
         credentials: 'include',
       });

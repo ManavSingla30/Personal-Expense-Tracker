@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { DollarSign, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { set } from 'mongoose';
-
+import { API_URL } from '../config/api';
 const SignupPage = () => {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -90,7 +90,7 @@ const SignupPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/user/signup', {
+      const res = await fetch(`${API_URL}/api/user/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

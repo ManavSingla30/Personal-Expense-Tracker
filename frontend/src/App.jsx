@@ -1,77 +1,99 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
-import {Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { API_URL } from './config/api';
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentPage = location.pathname.split('/')[1] || 'dashboard';
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch(`${API_URL}/isLoggedIn`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          setIsLoggedIn(true);
+          setUser(data.user);
+        } else {
+          setIsLoggedIn(false);
+          navigate('/login');
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err);
+        setIsLoggedIn(false);
+        navigate('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   const handleLogout = async () => {
-    try{
-      const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/user/logout', {
+    try {
+      const res = await fetch(`${API_URL}/api/user/logout`, {
         method: 'POST',
         credentials: 'include'
       });
-      if(res.status === 200){
+      
+      if (res.ok) {
         setIsLoggedIn(false);
         setUser(null);
         navigate('/login');
       }
-    }
-    catch(err){
+    } catch (err) {
       console.error('Logout error:', err);
+      // Still navigate to login even if logout fails
+      navigate('/login');
     }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
-  useEffect(() => {
-    const isLoggedIn = async() => {
-      try{
-        const res = await fetch('https://personal-expense-tracker-psi.vercel.app/isLoggedIn', {
-          method: 'GET',
-          credentials: 'include'
-        });
-        const data = await res.json();
-        if(res.status === 200){
-          setIsLoggedIn(true);
-          setUser(data.user);
-          navigate('/dashboard');
-        }
-        else{
-          setIsLoggedIn(false);
-          navigate('/login');
-        }
-      }
-      catch(err){
-        setIsLoggedIn(false);
-        navigate('/login');
-      }
-    }
-    isLoggedIn()
-  }, []);
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar 
-            currentPage={currentPage} 
-            setCurrentPage={setCurrentPage}
-            onLogout={handleLogout}
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-            user={user}
-          />
-          
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <Header setSidebarOpen={setSidebarOpen} />
-            <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">
-              <Outlet />
-            </main>
-          </div>
+      <div className="flex h-screen overflow-hidden">
+        <Sidebar 
+          currentPage={currentPage}
+          onLogout={handleLogout}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          user={user}
+        />
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header setSidebarOpen={setSidebarOpen} user={user} />
+          <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">
+            <Outlet />
+          </main>
         </div>
+      </div>
     </div>
   );
 };

@@ -1,42 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, DollarSign, FileText, PieChart, LogOut, X, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config/api';
 
-export default function Sidebar({ currentPage, setCurrentPage, onLogout, sidebarOpen, setSidebarOpen }) {
+export default function Sidebar({ currentPage, onLogout, sidebarOpen, setSidebarOpen, user }) {
   const [username, setUsername] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const navigate = useNavigate();
 
   const menuItems = [
-    { id: 'dashboard', name: 'Dashboard', icon: PieChart },
-    { id: 'add-expense', name: 'Add Expense', icon: Plus },
-    { id: 'expenses', name: 'Expense List', icon: FileText },
-    { id: 'reports', name: 'Reports', icon: Calendar },
+    { id: 'dashboard', name: 'Dashboard', icon: PieChart, path: '/dashboard' },
+    { id: 'add-expense', name: 'Add Expense', icon: Plus, path: '/add-expense' },
+    { id: 'expenses', name: 'Expense List', icon: FileText, path: '/expenses' },
+    { id: 'reports', name: 'Reports', icon: Calendar, path: '/reports' },
   ];
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch('https://personal-expense-tracker-psi.vercel.app/findUser', {
+        const res = await fetch(`${API_URL}/findUser`, {
           method: 'GET',
           credentials: 'include'
         });
-        const data = await res.json();
-        if (res.ok && data?.user) {
-          setUsername(data.user.username);
-          setUserEmail(data.user.email);
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            setUsername(data.user.username || data.user.fullName);
+            setUserEmail(data.user.email);
+          }
         }
       } catch (err) {
         console.error('Error fetching user:', err);
       }
     };
-    fetchUser();
-  }, []);
 
-  const handleClick = (id) => {
-    navigate(`/${id}`);
-    setCurrentPage(id);
-  }
+    if (!username) {
+      fetchUser();
+    }
+  }, [username]);
+
+  const handleClick = (path) => {
+    navigate(path);
+    setSidebarOpen(false);
+  };
 
   return (
     <>
@@ -68,10 +75,7 @@ export default function Sidebar({ currentPage, setCurrentPage, onLogout, sidebar
             {menuItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => {
-                  handleClick(item.id);
-                  setSidebarOpen(false);
-                }}
+                onClick={() => handleClick(item.path)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
                   currentPage === item.id 
                     ? 'bg-white text-blue-600 shadow-lg' 
@@ -87,11 +91,11 @@ export default function Sidebar({ currentPage, setCurrentPage, onLogout, sidebar
           <div className="p-4 border-t border-blue-500">
             <div className="flex items-center space-x-3 px-4 py-3 mb-2">
               <div className="w-10 h-10 bg-blue-300 rounded-full flex items-center justify-center text-blue-900 font-bold">
-                {username ? username[0].toUpperCase() : 'U'}
+                {username ? username[0].toUpperCase() : user?.username?.[0]?.toUpperCase() || 'U'}
               </div>
-              <div>
-                <p className="font-medium">{username || 'Loading...'}</p>
-                <p className="text-xs text-blue-200">{userEmail || '...'}</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{username || user?.username || 'Loading...'}</p>
+                <p className="text-xs text-blue-200 truncate">{userEmail || user?.email || '...'}</p>
               </div>
             </div>
             <button
