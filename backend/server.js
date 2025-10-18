@@ -19,13 +19,14 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/backend", {
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
+const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
 const allowedOrigins = [
   'https://walletxy.vercel.app',
-  'https://walletxy.vercel.app/login',
-  'https://walletxy.vercel.app/dashboard',
   'http://localhost:3000',
-  'http://localhost:5173'
-];
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+  vercelUrl,
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -51,9 +52,9 @@ app.get('/', (req, res) => {
 
 app.use('/api/user', userRoutes);
 
-// app.get('/isLoggedIn', checkUserLogin, (req, res) => {
-//   return res.status(200).json({ message: 'User is logged in', user: req.user });
-// });
+app.get('/isLoggedIn', checkUserLogin, (req, res) => {
+  return res.status(200).json({ message: 'User is logged in', user: req.user });
+});
 
 app.get('/findUser', checkUserLogin, async (req, res) => {
   try {
