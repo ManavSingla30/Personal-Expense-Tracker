@@ -1,7 +1,7 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Eye, Edit, Trash2, X, AlertTriangle } from 'lucide-react';
+import { API_URL } from '../config/api';
 
 export default function ExpenseListPage() {
   const [expenses, setExpenses] = useState([]);
@@ -10,25 +10,21 @@ export default function ExpenseListPage() {
   const itemsPerPage = 8;
   const navigate = useNavigate();
 
-  // Filter states
   const [searchText, setSearchText] = useState('');
   const [selectedBranch, setSelectedBranch] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedMode, setSelectedMode] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-
-  // Track if filters are active
   const [filtersActive, setFiltersActive] = useState(false);
 
-  // Modal states
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
 
   useEffect(() => {
     async function fetchExpenses() {
-      const res = await fetch('https://personal-expense-tracker-psi.vercel.app/api/expense/getExpenses', {
+      const res = await fetch(`${API_URL}/api/expense/getExpenses`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -37,7 +33,6 @@ export default function ExpenseListPage() {
         ...exp,
         date: new Date(exp.date)
       }));
-      console.log(converted);
       setExpenses(converted);
       setFilteredExpenses(converted);
     }
@@ -86,7 +81,6 @@ export default function ExpenseListPage() {
       });
       
       if (res.ok) {
-        // Remove from state
         const updatedExpenses = expenses.filter(exp => exp._id !== selectedExpense._id);
         setExpenses(updatedExpenses);
         setFilteredExpenses(updatedExpenses);
@@ -103,30 +97,20 @@ export default function ExpenseListPage() {
 
   const handleSearch = () => {
     let filtered = [...expenses];
-
-    // Search by Payment To
     if (searchText.trim()) {
       filtered = filtered.filter(exp =>
         exp.paymentTo.toLowerCase().includes(searchText.toLowerCase())
       );
     }
-
-    // Filter by Branch
     if (selectedBranch) {
       filtered = filtered.filter(exp => exp.branch === selectedBranch);
     }
-
-    // Filter by Type
     if (selectedType) {
       filtered = filtered.filter(exp => exp.expenseType === selectedType);
     }
-
-    // Filter by Mode of Payment
     if (selectedMode) {
       filtered = filtered.filter(exp => exp.modeOfPayment === selectedMode);
     }
-
-    // Filter by Date Range
     if (dateFrom) {
       const fromDate = new Date(dateFrom);
       filtered = filtered.filter(exp => exp.date >= fromDate);
@@ -136,7 +120,6 @@ export default function ExpenseListPage() {
       toDate.setHours(23, 59, 59, 999);
       filtered = filtered.filter(exp => exp.date <= toDate);
     }
-
     setFilteredExpenses(filtered);
     setCurrentPage(1);
     setFiltersActive(true);
@@ -154,14 +137,12 @@ export default function ExpenseListPage() {
     setFiltersActive(false);
   };
 
-  // Get unique values for dropdowns
   const branches = [...new Set(expenses.map(exp => exp.branch))];
   const types = [...new Set(expenses.map(exp => exp.expenseType))];
   const modes = [...new Set(expenses.map(exp => exp.modeOfPayment))];
 
   return (
     <div className="space-y-6">
-      {/* Header with Search and Filter */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Expense List</h2>
@@ -174,11 +155,8 @@ export default function ExpenseListPage() {
           </button>
         </div>
 
-        {/* Search and Filters */}
         <div className="space-y-4">
-          {/* Row 1: Search, Branch, Type */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {/* Search Input */}
             <div className="md:col-span-6 relative">
               <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
               <input
@@ -189,8 +167,6 @@ export default function ExpenseListPage() {
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               />
             </div>
-
-            {/* Branch Filter */}
             <div className="md:col-span-3">
               <select
                 value={selectedBranch}
@@ -203,8 +179,6 @@ export default function ExpenseListPage() {
                 ))}
               </select>
             </div>
-
-            {/* Type Filter */}
             <div className="md:col-span-3">
               <select
                 value={selectedType}
@@ -218,10 +192,7 @@ export default function ExpenseListPage() {
               </select>
             </div>
           </div>
-
-          {/* Row 2: Mode, Date Range, Search Button */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {/* Mode of Payment */}
             <div className="md:col-span-3">
               <select
                 value={selectedMode}
@@ -234,8 +205,6 @@ export default function ExpenseListPage() {
                 ))}
               </select>
             </div>
-
-            {/* Date From */}
             <div className="md:col-span-4">
               <input
                 type="date"
@@ -245,8 +214,6 @@ export default function ExpenseListPage() {
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               />
             </div>
-
-            {/* Date To */}
             <div className="md:col-span-4">
               <input
                 type="date"
@@ -256,8 +223,6 @@ export default function ExpenseListPage() {
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               />
             </div>
-
-            {/* Search Button */}
             <div className="md:col-span-1 flex gap-2">
               <button
                 onClick={handleSearch}
@@ -277,8 +242,6 @@ export default function ExpenseListPage() {
             </div>
           </div>
         </div>
-
-        {/* Active Filters Display */}
         {filtersActive && (
           <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
             <div className="flex items-center justify-between">
@@ -289,8 +252,6 @@ export default function ExpenseListPage() {
           </div>
         )}
       </div>
-
-      {/* Expense Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -361,7 +322,6 @@ export default function ExpenseListPage() {
           </table>
         </div>
 
-        {/* Pagination Controls */}
         {filteredExpenses.length > 0 && (
           <div className="bg-gray-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between border-t border-gray-200">
             <p className="text-sm text-gray-600 mb-2 sm:mb-0">
@@ -407,7 +367,6 @@ export default function ExpenseListPage() {
         )}
       </div>
 
-      {/* View Modal */}
       {viewModalOpen && selectedExpense && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -484,7 +443,6 @@ export default function ExpenseListPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteModalOpen && selectedExpense && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">

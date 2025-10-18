@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DollarSign, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config/api';
 
 const LoginPage = () => {
   const [credentials, setCredentials] = useState({
@@ -11,8 +12,6 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
   const onNavigateToSignup = () => {
     navigate('/signup');
@@ -29,8 +28,6 @@ const LoginPage = () => {
 
     if (!credentials.password) {
       newErrors.password = 'Password is required';
-    } else if (credentials.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
     }
 
     setErrors(newErrors);
@@ -54,27 +51,21 @@ const LoginPage = () => {
         },
         credentials: 'include',
         body: JSON.stringify(credentials)
-      })
+      });
   
       const data = await res.json();
-      console.log(data);
-      if(res.status === 200){
+
+      if(res.ok){
         setIsLoading(false);
-        navigate('/dashboard');
-      }
-      else if(res.status === 400){
+        window.location.href = '/dashboard';
+      } else {
         setIsLoading(false);
-        setErrors({ general: data.message });
-      }
-      else if(res.status === 401){
-        setIsLoading(false);
-        setErrors({ general: data.message });
-        navigate('/signup');
+        setErrors({ general: data.message || 'Login failed. Please check your credentials.' });
       }
 
     } catch (error) {
       setIsLoading(false);
-      setErrors({ general: 'Invalid email or password' });
+      setErrors({ general: 'An error occurred. Please try again.' });
     }
   };
 
@@ -84,18 +75,14 @@ const LoginPage = () => {
       ...credentials,
       [name]: value
     });
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
+    if (errors[name] || errors.general) {
+      setErrors({});
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <DollarSign className="w-8 h-8 text-blue-600" />
@@ -104,14 +91,12 @@ const LoginPage = () => {
           <p className="text-gray-600 mt-2">Sign in to manage your expenses</p>
         </div>
 
-        {/* Error Message */}
         {errors.general && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-600">{errors.general}</p>
           </div>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

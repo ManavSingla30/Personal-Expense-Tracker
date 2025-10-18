@@ -56,7 +56,6 @@ const App = () => {
       }
     } catch (err) {
       console.error('Logout error:', err);
-      // Still navigate to login even if logout fails
       navigate('/login');
     }
   };
@@ -73,7 +72,7 @@ const App = () => {
   }
 
   if (!isLoggedIn) {
-    return null;
+    return <Outlet />;
   }
 
   return (
