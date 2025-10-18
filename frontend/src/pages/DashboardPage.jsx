@@ -10,7 +10,7 @@ import { Calendar } from 'lucide-react';
 function DashboardPage() {
   const [recentExpenses, setRecentExpenses] = useState([]);
   const [expenses, setExpenses] = useState([]);
-  const [timeFilter, setTimeFilter] = useState('total'); // total, month, week, today
+  const [timeFilter, setTimeFilter] = useState('total'); 
 
   // Filter expenses based on selected time period
   const getFilteredExpenses = () => {

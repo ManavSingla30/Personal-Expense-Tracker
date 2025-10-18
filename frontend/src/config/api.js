@@ -1,14 +1,16 @@
+// src/config/api.js
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-const API_URL =
-  typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL
-    ? import.meta.env.VITE_API_URL
-    : (typeof window !== 'undefined' && (import.meta.env?.PROD ? '' : 'http://localhost:3000'));
+console.log('🔗 API URL:', API_URL); // Debug log
 
 export { API_URL };
 
 export const apiCall = async (endpoint, options = {}) => {
   try {
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const url = `${API_URL}${endpoint}`;
+    console.log('📡 API Call:', url); // Debug log
+    
+    const response = await fetch(url, {
       ...options,
       credentials: 'include',
       headers: {
@@ -19,7 +21,7 @@ export const apiCall = async (endpoint, options = {}) => {
 
     return response;
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('❌ API Error:', error);
     throw error;
   }
 };
