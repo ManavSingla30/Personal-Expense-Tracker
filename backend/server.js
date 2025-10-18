@@ -25,6 +25,8 @@ const allowedOrigins = [
   'https://walletxy.vercel.app',
   // Explicit preview URL reported in production error
   'https://walletxy-4az28ymdu-manav-singlas-projects.vercel.app',
+  // New preview reported
+  'https://walletxy-2wrdhv8hj-manav-singlas-projects.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -36,7 +38,10 @@ const allowedOrigins = [
 
 // Allow Vercel preview deployments for the frontend project (e.g., walletxy-xxxxx-<team>.vercel.app)
 const allowedOriginRegexes = [
+  // Generic pattern for previews and team suffixed subdomains
   /^https:\/\/walletxy[a-z0-9-]*\.vercel\.app$/,
+  // Broadened pattern specifically covering owner-suffixed preview domains
+  /^https:\/\/walletxy[a-z0-9-]*-manav-singlas-projects\.vercel\.app$/,
 ];
 
 const corsOrigin = (origin, callback) => {
@@ -78,7 +83,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/user', userRoutes);
 
-app.get('/isLoggedIn', checkUserLogin, (req, res) => {
+// Redundant, but ensure route-level CORS always applies here
+app.get('/isLoggedIn', cors({ origin: corsOrigin, credentials: true }), checkUserLogin, (req, res) => {
   return res.status(200).json({ message: 'User is logged in', user: req.user });
 });
 
