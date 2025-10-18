@@ -22,6 +22,7 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/backend", {
 
 const allowedOrigins = [
   'https://walletxy.vercel.app/login',
+  'https://walletxy.vercel.app/dashboard',
   'http://localhost:3000',
   'http://localhost:5173'
 ];
