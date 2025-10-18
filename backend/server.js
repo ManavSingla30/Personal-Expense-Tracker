@@ -20,12 +20,18 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/backend", {
 .catch(err => console.error('MongoDB connection error:', err));
 
 const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
+// Allow-list known frontends and previews
 const allowedOrigins = [
   'https://walletxy.vercel.app',
+  // Explicit preview URL reported in production error
+  'https://walletxy-4az28ymdu-manav-singlas-projects.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
   process.env.FRONTEND_URL,
   vercelUrl,
+  // Allow comma-separated list via env if provided
+  ...(process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean) : [])
 ].filter(Boolean);
 
 // Allow Vercel preview deployments for the frontend project (e.g., walletxy-xxxxx-<team>.vercel.app)
@@ -44,15 +50,23 @@ const corsOrigin = (origin, callback) => {
   return callback(new Error(msg), false);
 };
 
+// Use default allowedHeaders behavior so the server reflects
+// Access-Control-Request-Headers from the browser (avoids preflight failures
+// due to restrictive static allow-list like sec-ch-ua headers)
 app.use(cors({
   origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Ensure preflight requests succeed
 app.options('*', cors({ origin: corsOrigin, credentials: true }));
+
+// Ensure caches don't mix responses across different origins
+app.use((req, res, next) => {
+  res.setHeader('Vary', 'Origin');
+  next();
+});
 
 app.use(cookieParser());
 app.use(express.json());
