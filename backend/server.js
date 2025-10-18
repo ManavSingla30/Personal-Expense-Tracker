@@ -13,7 +13,6 @@ const expenseRoutes = require('./routes/expense.js');
 
 const app = express();
 
-// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/backend", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -21,9 +20,21 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/backend", {
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// CORS Configuration - Updated for production
+const allowedOrigins = [
+  'https://walletxy.netlify.app',
+  'http://localhost:3000',
+  'http://localhost:5173'
+];
+
 app.use(cors({
-  origin: "https://walletxy.netlify.app",
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -33,12 +44,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Root route for testing
 app.get('/', (req, res) => {
   res.json({ message: 'Expense Tracker API is running!' });
 });
 
-// User routes
 app.use('/api/user', userRoutes);
 
 app.get('/isLoggedIn', checkUserLogin, (req, res) => {
@@ -52,7 +61,6 @@ app.get('/findUser', checkUserLogin, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    console.log(user);
     return res.status(200).json({ user });
   } catch (err) {
     console.error('Find user error:', err);
@@ -60,21 +68,20 @@ app.get('/findUser', checkUserLogin, async (req, res) => {
   }
 });
 
-// Expense routes
 app.use('/api/expense', expenseRoutes);
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// Error handler
 app.use((err, req, res, next) => {
+  if (err.message.includes('The CORS policy')) {
+    return res.status(403).json({ message: err.message });
+  }
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-// Local development server
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
@@ -82,5 +89,4 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Export for Vercel
 module.exports = app;
