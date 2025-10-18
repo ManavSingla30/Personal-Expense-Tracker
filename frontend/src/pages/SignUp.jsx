@@ -53,9 +53,7 @@ const SignupPage = () => {
       });
       const data = await res.json();
       
-      if(res.ok){ // Checks for 2xx status codes
-        // --- THIS IS THE FIX ---
-        // Force a full page reload to ensure the cookie is set.
+      if(res.ok){ 
         window.location.href = '/dashboard';
       } else {
         setIsLoading(false);
