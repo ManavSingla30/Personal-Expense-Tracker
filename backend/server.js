@@ -21,59 +21,29 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/backend", {
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// CORS Configuration - UPDATED
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-// Regex patterns for dynamic Vercel URLs
-const allowedOriginRegexes = [
-  /^https:\/\/walletxy.*\.vercel\.app$/,  // All walletxy deployments
-  /^https:\/\/.*-manav-singlas-projects\.vercel\.app$/,  // All your preview deployments
-];
-
-const corsOrigin = (origin, callback) => {
-  // Allow requests with no origin (mobile apps, Postman, curl, etc.)
-  if (!origin) {
-    console.log('✅ No origin - allowing request');
-    return callback(null, true);
+// ============= SIMPLIFIED CORS FIX =============
+// This allows ALL Vercel deployments automatically
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Allow localhost for development
+  if (origin && (origin.includes('localhost') || origin.endsWith('.vercel.app'))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
   }
-
-  // Check explicit origins
-  if (allowedOrigins.includes(origin)) {
-    console.log('✅ Allowed origin (explicit):', origin);
-    return callback(null, true);
+  
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
+  res.setHeader('Access-Control-Expose-Headers', 'Set-Cookie');
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
-
-  // Check regex patterns
-  const matchesPattern = allowedOriginRegexes.some((regex) => regex.test(origin));
-  if (matchesPattern) {
-    console.log('✅ Allowed origin (regex match):', origin);
-    return callback(null, true);
-  }
-
-  // Reject
-  console.log('❌ Blocked origin:', origin);
-  const msg = `CORS policy does not allow access from origin: ${origin}`;
-  return callback(new Error(msg), false);
-};
-
-// Apply CORS middleware
-app.use(cors({
-  origin: corsOrigin,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  exposedHeaders: ['Set-Cookie'],
-}));
-
-// Handle preflight requests
-app.options('*', cors({
-  origin: corsOrigin,
-  credentials: true,
-}));
+  
+  next();
+});
+// ============= END CORS FIX =============
 
 // Body parsing middleware
 app.use(cookieParser());
@@ -139,16 +109,6 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  // Handle CORS errors
-  if (err.message && err.message.includes('CORS policy')) {
-    console.error('CORS Error:', err.message);
-    return res.status(403).json({ 
-      message: 'CORS error',
-      error: err.message,
-      origin: req.headers.origin
-    });
-  }
-
   console.error('Server Error:', err.stack);
   res.status(500).json({ 
     message: 'Something went wrong!',
