@@ -54,7 +54,7 @@ const SignupPage = () => {
       const data = await res.json();
       
       if(res.ok){ 
-        window.location.href = '/dashboard';
+        navigate('/dashboard')
       } else {
         setIsLoading(false);
         setErrors({ general: data.message || 'Registration failed. Please try again.' });

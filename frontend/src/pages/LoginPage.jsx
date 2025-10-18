@@ -57,7 +57,7 @@ const LoginPage = () => {
 
       if(res.ok){
         setIsLoading(false);
-        window.location.href = '/dashboard';
+        navigate('/dashboard');
       } else {
         setIsLoading(false);
         setErrors({ general: data.message || 'Login failed. Please check your credentials.' });

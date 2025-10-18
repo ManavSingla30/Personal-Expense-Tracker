@@ -51,9 +51,9 @@ app.get('/', (req, res) => {
 
 app.use('/api/user', userRoutes);
 
-// app.get('/isLoggedIn', checkUserLogin, (req, res) => {
-//   return res.status(200).json({ message: 'User is logged in', user: req.user });
-// });
+app.get('/isLoggedIn', checkUserLogin, (req, res) => {
+  return res.status(200).json({ message: 'User is logged in', user: req.user });
+});
 
 app.get('/findUser', checkUserLogin, async (req, res) => {
   try {
