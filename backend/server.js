@@ -11,21 +11,25 @@ const User = require('./models/user.js');
 const expenseRoutes = require('./routes/expense.js');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+// Removed deprecated options: useNewUrlParser and useUnifiedTopology
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// CORS Middleware - Must be FIRST
+// CORS Middleware
 app.use((req, res, next) => {
+  // Use an environment variable for the client URL for flexibility
+  const allowedOrigins = [
+    'http://localhost:3000', 
+    'http://localhost:5173', // A common Vite/React dev port
+    process.env.CLIENT_URL // Your frontend URL on Render
+  ];
   const origin = req.headers.origin;
-  
-  // Allow localhost and all vercel.app domains
-  if (origin && (origin.includes('localhost') || origin.endsWith('.vercel.app'))) {
+
+  if (allowedOrigins.includes(origin) || (origin && origin.endsWith('.vercel.app'))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   
@@ -33,7 +37,6 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,Cookie');
   
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -46,7 +49,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// --- API Routes ---
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Expense Tracker API is running!',
@@ -62,6 +65,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/user', userRoutes);
+app.use('/api/expense', expenseRoutes);
 
 app.get('/isLoggedIn', checkUserLogin, (req, res) => {
   return res.status(200).json({ 
@@ -74,11 +78,9 @@ app.get('/findUser', checkUserLogin, async (req, res) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select('-password');
-    
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
     return res.status(200).json({ user });
   } catch (err) {
     console.error('Find user error:', err);
@@ -86,9 +88,7 @@ app.get('/findUser', checkUserLogin, async (req, res) => {
   }
 });
 
-app.use('/api/expense', expenseRoutes);
-
-// 404 handler
+// --- Error Handling ---
 app.use((req, res) => {
   res.status(404).json({ 
     message: 'Route not found',
@@ -96,21 +96,16 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  console.error('Unhandled Error:', err);
   res.status(500).json({ 
     message: 'Something went wrong!',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
-// Local development
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
-}
-
-module.exports = app;
+// --- Server Startup ---
+// This now runs in all environments, which is what Render needs.
+app.listen(PORT, () => {
+  console.log(`🚀 Server listening on port ${PORT}`);
+});
