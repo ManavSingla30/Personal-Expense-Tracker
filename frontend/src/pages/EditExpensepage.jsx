@@ -50,7 +50,7 @@ export default function EditExpensePage() {
 
       if (res.ok) {
         alert('Expense updated successfully!');
-        navigate('/expense-list');
+        navigate('/expenses');
       } else {
         const data = await res.json();
         alert(data.message || 'Failed to update expense');
@@ -64,7 +64,7 @@ export default function EditExpensePage() {
   };
 
   const handleCancel = () => {
-    navigate('/expense-list');
+    navigate('/expenses');
   };
 
   return (
