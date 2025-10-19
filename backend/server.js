@@ -4,6 +4,7 @@ dotenv.config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 const userRoutes = require('./routes/user.js');
 const { checkUserLogin } = require('./middleware/user.js');
@@ -20,29 +21,10 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // CORS Middleware
-app.use((req, res, next) => {
-  // Use an environment variable for the client URL for flexibility
-  const allowedOrigins = [
-    'http://localhost:3000', 
-    'http://localhost:5173', // A common Vite/React dev port
-    process.env.CLIENT_URL // Your frontend URL on Render
-  ];
-  const origin = req.headers.origin;
-
-  if (allowedOrigins.includes(origin) || (origin && origin.endsWith('.vercel.app'))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,Cookie');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  next();
-});
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true,
+}))
 
 // Body parsing
 app.use(cookieParser());
