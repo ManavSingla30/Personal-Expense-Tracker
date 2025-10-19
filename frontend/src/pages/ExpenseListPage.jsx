@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Eye, Edit, Trash2, X, AlertTriangle } from 'lucide-react';
-
+import { API_URL } from '../config/api';
 export default function ExpenseListPage() {
   const [expenses, setExpenses] = useState([]);
   const [filteredExpenses, setFilteredExpenses] = useState([]);
@@ -28,7 +28,7 @@ export default function ExpenseListPage() {
 
   useEffect(() => {
     async function fetchExpenses() {
-      const res = await fetch('http://localhost:3000/api/expense/getExpenses', {
+      const res = await fetch(`${API_URL}/api/expense/getExpenses`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -80,7 +80,7 @@ export default function ExpenseListPage() {
 
   const handleDeleteConfirm = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/expense/deleteExpense/${selectedExpense._id}`, {
+      const res = await fetch(`${API_URL}/api/expense/deleteExpense/${selectedExpense._id}`, {
         method: 'DELETE',
         credentials: 'include',
       });

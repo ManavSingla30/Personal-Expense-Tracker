@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DollarSign, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import { API_URL } from '../config/api';
 const LoginPage = () => {
   const [credentials, setCredentials] = useState({
     email: '',
@@ -45,7 +45,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:3000/api/user/login', {
+      const res = await fetch(`${API_URL}/api/user/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

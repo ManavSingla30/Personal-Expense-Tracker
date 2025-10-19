@@ -5,7 +5,7 @@ import {
   BarChart, Bar, ResponsiveContainer
 } from 'recharts';
 import { Calendar } from 'lucide-react';
-
+import { API_URL } from '../config/api';
 function DashboardPage() {
   const [recentExpenses, setRecentExpenses] = useState([]);
   const [expenses, setExpenses] = useState([]);
@@ -94,7 +94,7 @@ function DashboardPage() {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/expense/getExpenses', {
+        const res = await fetch(`${API_URL}/api/expense/getExpenses`, {
           method: 'GET',
           credentials: 'include'
         });
