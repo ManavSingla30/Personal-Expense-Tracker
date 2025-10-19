@@ -4,7 +4,6 @@ import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { API_URL } from '../config/api';
 import { PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 
 export default function ReportsPage() {
@@ -143,7 +142,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     async function fetchExpenses() {
-      const res = await fetch(`${API_URL}/api/expense/getExpenses`, {
+      const res = await fetch("http://localhost:3000/api/expense/getExpenses", {
         method: "GET",
         credentials: "include",
       });
@@ -574,7 +573,6 @@ export default function ReportsPage() {
     </div>
   );
 }
-
 
 
 

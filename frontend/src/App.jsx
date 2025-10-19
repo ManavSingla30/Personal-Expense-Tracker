@@ -72,7 +72,7 @@ const App = () => {
   }
 
   if (!isLoggedIn) {
-    return <Outlet />;
+    return null;
   }
 
   return (

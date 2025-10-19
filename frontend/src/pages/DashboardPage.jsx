@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { API_URL } from '../config/api';
 import {
   PieChart, Pie, Cell, Legend,
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -10,7 +9,7 @@ import { Calendar } from 'lucide-react';
 function DashboardPage() {
   const [recentExpenses, setRecentExpenses] = useState([]);
   const [expenses, setExpenses] = useState([]);
-  const [timeFilter, setTimeFilter] = useState('total'); 
+  const [timeFilter, setTimeFilter] = useState('total'); // total, month, week, today
 
   // Filter expenses based on selected time period
   const getFilteredExpenses = () => {
@@ -95,7 +94,7 @@ function DashboardPage() {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/expense/getExpenses`, {
+        const res = await fetch('http://localhost:3000/api/expense/getExpenses', {
           method: 'GET',
           credentials: 'include'
         });

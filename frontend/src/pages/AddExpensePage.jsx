@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_URL } from '../config/api';
+
 export default function AddExpensePage() {
   const [formData, setFormData] = useState({
     date: '',
@@ -43,7 +43,7 @@ export default function AddExpensePage() {
 
     async function submitData() {
       try {
-        const res = await fetch(`${API_URL}/api/expense/addExpense`, {
+        const res = await fetch('http://localhost:3000/api/expense/addExpense', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
