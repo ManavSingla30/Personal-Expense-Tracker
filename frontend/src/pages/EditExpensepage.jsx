@@ -9,7 +9,7 @@ export default function EditExpensePage() {
 
   // If no expense data, redirect back
   if (!expense) {
-    navigate('/expense-list');
+    navigate('/expenses');
     return null;
   }
 
